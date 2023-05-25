@@ -7,7 +7,6 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Hello ${name}</h1>
-    <a href="todolist">To Do List</a>
+    <h1>Hi Abhi</h1>
 </body>
 </html>

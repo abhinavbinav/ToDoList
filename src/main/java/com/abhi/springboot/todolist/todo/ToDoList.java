@@ -1,17 +1,38 @@
 package com.abhi.springboot.todolist.todo;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Size;
 
+@Entity
 public class ToDoList {
+
+    public ToDoList(){
+
+    }
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
     private String name;
-    @Size(min=10, message="idiot")
     private String task;
     private Boolean status;
 
-    public ToDoList(String name, String task, Boolean status) {
+    public ToDoList(int id, String name, String task, Boolean status) {
+        super();
         this.name = name;
         this.task = task;
         this.status = status;
+        this.id = id;
     }
 
     public String getName() {
@@ -37,7 +58,8 @@ public class ToDoList {
     @Override
     public String toString() {
         return "ToDoList{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", task='" + task + '\'' +
                 ", status=" + status +
                 '}';

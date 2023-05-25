@@ -12,29 +12,37 @@ public class ToDoListService {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
+    private int id_count = 3;
+
     public static List<ToDoList> toDoList = new ArrayList<ToDoList>();
     static {
-        toDoList.add(new ToDoList("abhi", "eat mac&cheese", Boolean.TRUE));
-        toDoList.add(new ToDoList("abhi", "drink smoothie", Boolean.FALSE));
-        toDoList.add(new ToDoList("alexandra", "send cute pics", Boolean.TRUE));
+        toDoList.add(new ToDoList(0, "abhi", "eat mac&cheese", Boolean.TRUE));
+        toDoList.add(new ToDoList(1, "abhi", "drink smoothie", Boolean.FALSE));
+        toDoList.add(new ToDoList(2, "alexandra", "send cute pics", Boolean.TRUE));
 
     }
-    public List<ToDoList> getToDos(){
-        return toDoList;
+    public List<ToDoList> getToDos(String username){
+        Predicate<? super ToDoList> predicate = t -> t.getName().equalsIgnoreCase(username);
+        return toDoList.stream().filter(predicate).toList();
     }
 
-    public void addToList(String name, String description){
-        ToDoList newToDo = new ToDoList(name, description, Boolean.FALSE);
+    public void addToList(String name, String task){
+        ToDoList newToDo = new ToDoList(id_count++, name, task, Boolean.FALSE);
         toDoList.add(newToDo);
     }
 
-    public void deleteFromList(String task){
-        Predicate<? super ToDoList> predicate = t -> t.getTask().equals(task);
+    public void updateList(int id, String name, String task, Boolean status){
+        ToDoList newToDo = new ToDoList(id, name, task, status);
+        toDoList.add(newToDo);
+    }
+
+    public void deleteFromList(int id){
+        Predicate<? super ToDoList> predicate = t -> t.getId() == id;
         toDoList.removeIf(predicate);
     }
 
-    public ToDoList findbyTask(String task){
-        Predicate<? super ToDoList> predicate = t -> t.getTask().equals(task);
+    public ToDoList findbyID(int id){
+        Predicate<? super ToDoList> predicate = t -> t.getId() == id;
         ToDoList toDo = toDoList.stream().filter(predicate).findFirst().get();
         logger.debug(toDo.toString());
         return toDo;

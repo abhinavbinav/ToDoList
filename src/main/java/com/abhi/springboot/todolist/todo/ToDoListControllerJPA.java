@@ -1,7 +1,6 @@
 package com.abhi.springboot.todolist.todo;
 
 import jakarta.validation.Valid;
-import org.eclipse.tags.shaded.org.apache.xpath.operations.Mod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,21 +14,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-//@Controller
-@SessionAttributes("name")
-public class ToDoListController {
+@Controller @SessionAttributes("name")
+public class ToDoListControllerJPA {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
-    public ToDoListController(ToDoListService toDoListService) {
-        this.toDoListService = toDoListService;
+    public ToDoListControllerJPA(ToDoListService toDoListService, ToDoListRepository toDoListRepository) {
+        this.toDoListRepository = toDoListRepository;
     }
 
     @Autowired
-    private ToDoListService toDoListService;
+    private ToDoListRepository toDoListRepository;
 
     @RequestMapping("/todolist")
     public String getToDo(ModelMap model){
-        model.put("list", toDoListService.getToDos(getLoggedInUserName()));
+        model.put("list", toDoListRepository.findByname(getLoggedInUserName()));
         return "tdl";
     }
 
@@ -46,29 +44,33 @@ public class ToDoListController {
         if(result.hasErrors()){
             return "redirect:todolist";
         }
-        String uname = (String)model.get("name");
-        toDoListService.addToList(uname, toDoList.getTask());
+        logger.debug(toDoList.toString());
+        String uname = getLoggedInUserName();
+        toDoList.setName(uname);
+        logger.debug(toDoList.toString());
+        toDoListRepository.save(toDoList);
         return "redirect:todolist";
     }
 
     @RequestMapping("/deletetodo")
     public String deleteToDo(@RequestParam int id){
-        toDoListService.deleteFromList(id);
+        toDoListRepository.deleteById(id);
         return "redirect:todolist";
     }
 
     @RequestMapping(value="/updatelist", method = RequestMethod.GET)
     public String updateList(ModelMap model, @RequestParam int id){
-        ToDoList t = toDoListService.findbyID(id);
-        model.put("toDoList", t);
+        String uname = getLoggedInUserName();
+        ToDoList current_todo = toDoListRepository.findByid(id);
+        model.put("toDoList", current_todo);
         return "updatelist";
     }
 
     @RequestMapping(value="/updatelist", method = RequestMethod.POST)
     public String updateListPost(ModelMap model, @Valid ToDoList toDoList){
-        String uname = getLoggedInUserName();
-        toDoListService.deleteFromList(toDoList.getId());
-        toDoListService.updateList(toDoList.getId(), uname, toDoList.getTask(), toDoList.getStatus());
+        String uname = (String)model.get("name");
+        toDoList.setName(uname);
+        toDoListRepository.save(toDoList);
         return "redirect:todolist";
     }
 
